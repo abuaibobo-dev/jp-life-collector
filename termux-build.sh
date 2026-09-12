@@ -7,6 +7,8 @@
 # 产物: jp-life-collector-<version>.apk（带签名，可直接安装）
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
 CPU=$(uname -m)
 echo "=== [1/8] 检查架构 (应为 aarch64) ==="
 echo "arch: $CPU"
@@ -71,7 +73,7 @@ fi
 "$AAPT2_BIN" version || true
 
 echo "=== [6/8] 配置项目 ==="
-cd "$(dirname "$0")/android"
+cd "$SCRIPT_DIR/android"
 cat > local.properties <<EOF
 sdk.dir=$ANDROID_HOME
 EOF
