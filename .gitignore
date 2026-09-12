@@ -1,0 +1,11 @@
+venv/
+__pycache__/
+downloads/
+sent/
+sent.db
+archive.txt
+runtime.log
+panel.pid
+config.json
+logs/
+*.pyc

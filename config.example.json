@@ -1,0 +1,29 @@
+{
+  "telegram": {
+    "bot_token": "在此填入你的bot_token",
+    "chat_id": "在此填入群组chat_id 或用 getUpdates 自动获取"
+  },
+  "sources": {
+    "keywords": [
+      "日本の自炊 キッチン 料理",
+      "日本の家庭料理 手作り",
+      "デリバリー 出前 日本 食",
+      "コンビニ 日本 買い物",
+      "日本の通勤 電車 朝"
+    ],
+    "max_per_keyword": 10,
+    "search_pages": 2
+  },
+  "preferences": {
+    "proxy": "",
+    "download_dir": "downloads",
+    "archive_file": "archive.txt",
+    "keywords_per_round": 3,
+    "run_interval_minutes": 120,
+    "max_image_mb": 8,
+    "max_images_send": 20,
+    "album_mode": true,
+    "search_market": "ja-JP"
+  },
+  "keep_uploaded": false
+}
