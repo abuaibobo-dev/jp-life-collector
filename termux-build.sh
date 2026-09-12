@@ -18,18 +18,28 @@ fi
 echo "=== [2/8] 安装 Termux 依赖 (openjdk-17 / git / wget / unzip) ==="
 pkg update -y
 pkg install -y openjdk-17 git wget unzip
+export PATH="$PREFIX/bin:$PATH"
 
-echo "=== [3/8] 安装 Gradle ==="
-GRADLE_VERSION=8.7
+echo "=== [3/8] 配置 JAVA_HOME / 安装 Gradle ==="
+JAVA_BIN=$(readlink -f "$(command -v java 2>/dev/null || true)")
+if [ -z "$JAVA_BIN" ] || [ ! -x "$JAVA_BIN" ]; then
+  JAVA_BIN="$PREFIX/lib/jvm/java-17-openjdk/bin/java"
+fi
+export JAVA_HOME=$(dirname "$(dirname "$JAVA_BIN")")
+export PATH="$JAVA_HOME/bin:$PATH"
+export LD_LIBRARY_PATH="$PREFIX/lib"
+java -version 2>&1 | head -2
+javac -version 2>&1
+
+GRADLE_VERSION=8.10.2
 if ! command -v gradle >/dev/null 2>&1; then
-  cd /data/data/com.termux/files/home
+  cd "$HOME"
   wget -q "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" -O gradle.zip
   unzip -q -o gradle.zip
   rm -f gradle.zip
-  ln -sf "/data/data/com.termux/files/home/gradle-${GRADLE_VERSION}/bin/gradle" \
-         /data/data/com.termux/files/usr/bin/gradle
+  ln -sf "$HOME/gradle-${GRADLE_VERSION}/bin/gradle" "$PREFIX/bin/gradle"
 fi
-gradle -v | head -6
+gradle -v 2>/dev/null | head -5
 
 echo "=== [4/8] 安装 Android SDK (cmdline-tools + platform-35 + build-tools) ==="
 export ANDROID_HOME="$HOME/android-sdk"
@@ -79,7 +89,8 @@ if [ ! -f "$KS" ]; then
 fi
 
 echo "=== [8/8] 构建 release APK ==="
-export ANDROID_HOME ANDROID_SDK_ROOT
+export ANDROID_HOME ANDROID_SDK_ROOT JAVA_HOME LD_LIBRARY_PATH
+export PATH="$JAVA_HOME/bin:$PATH"
 gradle --no-daemon assembleRelease
 
 APK="app/build/outputs/apk/release/app-release-unsigned.apk"
