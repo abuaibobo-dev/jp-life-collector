@@ -79,8 +79,10 @@ cd "$SCRIPT_DIR/android"
 cat > local.properties <<EOF
 sdk.dir=$ANDROID_HOME
 EOF
-grep -q "^android.aapt2FromMavenOverride" gradle.properties || \
-  echo "android.aapt2FromMavenOverride=$AAPT2_BIN" >> gradle.properties
+sed -i '/android\.aapt2FromMavenOverride/d' gradle.properties
+printf '\nandroid.aapt2FromMavenOverride=%s\n' "$AAPT2_BIN" >> gradle.properties
+grep -q "^android.useAndroidX=true" gradle.properties || \
+  printf 'android.useAndroidX=true\n' >> gradle.properties
 
 echo "=== [7/8] 生成签名密钥 (debug keystore) ==="
 KS_DIR="$HOME/.android"
