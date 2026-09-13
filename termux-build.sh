@@ -34,7 +34,9 @@ java -version 2>&1 | head -2
 javac -version 2>&1
 
 GRADLE_VERSION=8.10.2
-if ! command -v gradle >/dev/null 2>&1; then
+if ! command -v gradle >/dev/null 2>&1 || ! gradle --version 2>/dev/null | grep -q "$GRADLE_VERSION"; then
+  rm -rf "$HOME/gradle-${GRADLE_VERSION}"
+  rm -f "$PREFIX/bin/gradle"
   cd "$HOME"
   wget -q "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" -O gradle.zip
   unzip -q -o gradle.zip
