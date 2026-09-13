@@ -72,6 +72,12 @@ public class CollectorEngine {
         this.sentDir = new File(ctx.getFilesDir(), "sent");
         downloadDir.mkdirs();
         sentDir.mkdirs();
+        syncSentCount();
+    }
+
+    private void syncSentCount() {
+        File[] files = sentDir.listFiles();
+        sentCount = files == null ? 0 : files.length;
     }
 
     public boolean isRunning() {
@@ -154,7 +160,7 @@ public class CollectorEngine {
         }
         sink.log("[采集完成] 本轮新增 " + collected.size() + " 张");
         uploadPending(s);
-        sentCount = sentDir.listFiles() == null ? 0 : sentDir.listFiles().length;
+        syncSentCount();
         sink.state(false, loopThread != null && loopThread.isAlive());
     }
 
@@ -428,5 +434,19 @@ public class CollectorEngine {
             Thread.sleep(ms);
         } catch (InterruptedException ignore) {
         }
+    }
+
+    public void clearHistory() {
+        if (archiveFile.exists()) archiveFile.delete();
+        File[] files = downloadDir.listFiles();
+        if (files != null) {
+            for (File f : files) f.delete();
+        }
+        File[] sentFiles = sentDir.listFiles();
+        if (sentFiles != null) {
+            for (File f : sentFiles) f.delete();
+        }
+        syncSentCount();
+        sink.log("[历史] 已清空缓存与记录");
     }
 }

@@ -69,7 +69,9 @@ public class BingSearcher {
         Set<String> seen = new HashSet<>();
         Matcher m = M_PATTERN.matcher(sb.toString());
         while (m.find()) {
-            String jsonRaw = m.group(1).replace("\\\"", "\"").replace("\\\\", "\\");
+            String group = m.group(1);
+            if (group.length() < 3 || group.charAt(0) != '{') continue;
+            String jsonRaw = unescapeHtml(group);
             try {
                 JSONObject d = new JSONObject(jsonRaw);
                 String murl = d.optString("murl", "").trim();
@@ -81,6 +83,42 @@ public class BingSearcher {
             }
         }
         return data;
+    }
+
+    static String unescapeHtml(String s) {
+        StringBuilder out = new StringBuilder(s.length());
+        int i = 0, n = s.length();
+        while (i < n) {
+            char c = s.charAt(i);
+            if (c == '&' && i + 1 < n) {
+                int semi = s.indexOf(';', i + 1);
+                String ent = (semi > i + 1) ? s.substring(i + 1, semi) : null;
+                String rep = null;
+                if (ent != null) {
+                    if (ent.equals("quot")) rep = "\"";
+                    else if (ent.equals("amp")) rep = "&";
+                    else if (ent.equals("apos")) rep = "'";
+                    else if (ent.equals("lt")) rep = "<";
+                    else if (ent.equals("gt")) rep = ">";
+                    else if (ent.equals("#39")) rep = "'";
+                    else if (ent.startsWith("#x") || ent.startsWith("#X")) {
+                        try { rep = String.valueOf((char) Integer.parseInt(ent.substring(2), 16)); }
+                        catch (Exception ignore) {}
+                    } else if (ent.startsWith("#")) {
+                        try { rep = String.valueOf((char) Integer.parseInt(ent.substring(1))); }
+                        catch (Exception ignore) {}
+                    }
+                }
+                if (rep != null) {
+                    out.append(rep);
+                    i = semi + 1;
+                    continue;
+                }
+            }
+            out.append(c);
+            i++;
+        }
+        return out.toString();
     }
 
     public static boolean goodUrl(String murl) {

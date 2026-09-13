@@ -9,7 +9,7 @@
         android:label="日本素材采集"
         android:icon="@drawable/ic_launcher"
         android:supportsRtl="true"
-        android:theme="@android:style/Theme.DeviceDefault.Light.DarkActionBar">
+        android:theme="@style/Theme.JpCollector">
 
         <activity
             android:name=".MainActivity"
