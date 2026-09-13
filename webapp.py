@@ -304,8 +304,9 @@ PAGE = """<!doctype html>
 </div>
 <script>
  function el(id){ return document.getElementById(id); }
- async function j(url, body){ return fetch(url, {method: body?'POST':'GET', headers:{'Content-Type':'application/json'}, body: body?JSON.stringify(body):null}).then(r=>r.json()); }
- async function refresh(){
+async function j(url, body){ return fetch(url, {method: body?'POST':'GET', headers:{'Content-Type':'application/json'}, body: body?JSON.stringify(body):null}).then(r=>r.json()); }
+  async function jpost(url){ return fetch(url, {method:'POST', headers:{'Content-Type':'application/json'}}).then(r=>r.json()); }
+  async function refresh(){
    const s = await j('/api/status');
    el('loop').textContent = s.loop_running ? '🟢 运行中' : '⚪ 停止';
    el('running').textContent = s.running ? '工作中' : '空闲';
@@ -321,9 +322,9 @@ PAGE = """<!doctype html>
    const img = await j('/api/images');
    el('thumbs').innerHTML = img.images.map(i=>'<img loading="lazy" src="'+i.url+'" title="'+i.name+'">').join('');
  }
- function runOnce(){ j('/api/run'); }
- async function loopStart(){ await j('/api/loop/start'); }
- async function loopStop(){ await j('/api/loop/stop'); }
+function runOnce(){ jpost('/api/run').then(r=>{ if(r.started) alert('已启动一轮采集'); }); }
+  async function loopStart(){ await jpost('/api/loop/start'); }
+  async function loopStop(){ await jpost('/api/loop/stop'); }
  async function loadCfgFull(){
    const r = await fetch('/api/config/full'); const cfg = await r.json();
    el('keywords').value = (cfg.keywords||[]).join('\\n');
